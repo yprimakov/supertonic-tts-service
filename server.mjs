@@ -148,9 +148,17 @@ async function synthesizeKokoro(text, voiceId) {
     throw new Error(`Invalid Kokoro voice. Valid: ${KOKORO_VOICES.join(', ')}`);
   }
   const audio = await kokoroTts.generate(text, { voice: voiceId });
-  // audio.data is Float32Array, audio.sampling_rate is the sample rate
-  const wavBuffer = float32ToWav(Array.from(audio.data), audio.sampling_rate);
-  const duration = audio.data.length / audio.sampling_rate;
+  // Log the audio object structure for debugging
+  console.log('[Kokoro] Audio object keys:', Object.keys(audio));
+  console.log('[Kokoro] Audio type:', typeof audio, audio?.constructor?.name);
+  if (audio.audio) console.log('[Kokoro] audio.audio keys:', Object.keys(audio.audio));
+
+  // kokoro-js returns { audio: RawAudio, ... } where RawAudio has .data and .sampling_rate
+  const rawAudio = audio.audio || audio;
+  const samples = rawAudio.data || rawAudio.waveform || rawAudio;
+  const sampleRate = rawAudio.sampling_rate || rawAudio.sampleRate || 24000;
+  const wavBuffer = float32ToWav(Array.from(samples), sampleRate);
+  const duration = samples.length / sampleRate;
   return { wavBuffer, duration };
 }
 
