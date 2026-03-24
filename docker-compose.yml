@@ -10,18 +10,16 @@ services:
       - ALLOWED_ORIGINS=https://www.yuryprimakov.com,https://yuryprimakov.com
     mem_limit: 1g
     cpus: 1.0
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tts.rule=Host(`tts.yuryprimakov.com`)"
+      - "traefik.http.routers.tts.entrypoints=websecure"
+      - "traefik.http.routers.tts.tls.certresolver=mytlschallenge"
+      - "traefik.http.services.tts.loadbalancer.server.port=3100"
+    networks:
+      - traefik
 
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-
-volumes:
-  caddy_data:
-  caddy_config:
+networks:
+  traefik:
+    external: true
+    name: root_default

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Deploy TTS service to Hostinger VPS
+# Deploy TTS service to Hostinger VPS (alongside existing Traefik + n8n)
 # Usage: ./deploy.sh <user>@<host>
 
 set -e
@@ -12,14 +12,15 @@ docker build -t supertonic-tts .
 
 echo "==> Saving image..."
 docker save supertonic-tts | gzip > /tmp/supertonic-tts.tar.gz
+echo "    Image size: $(du -h /tmp/supertonic-tts.tar.gz | cut -f1)"
 
 echo "==> Uploading to $REMOTE..."
 scp /tmp/supertonic-tts.tar.gz "$REMOTE:/tmp/"
-scp docker-compose.yml Caddyfile "$REMOTE:$REMOTE_DIR/"
+ssh "$REMOTE" "mkdir -p $REMOTE_DIR"
+scp docker-compose.yml "$REMOTE:$REMOTE_DIR/"
 
 echo "==> Loading image and starting on remote..."
 ssh "$REMOTE" << 'ENDSSH'
-mkdir -p /opt/tts-service
 cd /opt/tts-service
 docker load < /tmp/supertonic-tts.tar.gz
 rm /tmp/supertonic-tts.tar.gz
@@ -27,12 +28,13 @@ rm /tmp/supertonic-tts.tar.gz
 # Create .env if it doesn't exist
 if [ ! -f .env ]; then
   echo "TTS_API_SECRET=$(openssl rand -hex 16)" > .env
-  echo "Created .env with random TTS_API_SECRET"
+  echo "Created .env with random TTS_API_SECRET:"
   cat .env
 fi
 
 docker compose up -d
-echo "==> TTS service is running"
+echo ""
+echo "==> Container status:"
 docker compose ps
 ENDSSH
 
