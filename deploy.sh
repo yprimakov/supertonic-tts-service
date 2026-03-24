@@ -40,8 +40,8 @@ ENDSSH
 
 echo ""
 echo "==> Done! Next steps:"
-echo "  1. Point DNS: tts.yuryprimakov.com -> your Hostinger VPS IP"
+echo "  1. Point DNS: tts.imadefire.com -> your Hostinger VPS IP"
 echo "  2. Add to Vercel env vars:"
-echo "     TTS_SERVICE_URL=https://tts.yuryprimakov.com"
+echo "     TTS_SERVICE_URL=https://tts.imadefire.com"
 echo "     TTS_API_SECRET=<the value from .env on the server>"
-echo "  3. Test: curl https://tts.yuryprimakov.com/health"
+echo "  3. Test: curl https://tts.imadefire.com/health"
