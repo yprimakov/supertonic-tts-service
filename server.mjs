@@ -132,12 +132,14 @@ async function synthesizeSupertonic(text, voiceId, lang) {
 let kokoroTts = null;
 
 async function initKokoro() {
-  console.log('[Kokoro] Loading model (q8, first request may download ~92MB)...');
+  console.log('[Kokoro] Loading model (q8 via WASM, first run may download ~92MB)...');
   const start = Date.now();
   const { KokoroTTS } = await import('kokoro-js');
+  // Use 'wasm' device to avoid native onnxruntime-node version conflict
+  // with Supertonic's onnxruntime-node dependency
   kokoroTts = await KokoroTTS.from_pretrained(
     'onnx-community/Kokoro-82M-v1.0-ONNX',
-    { dtype: 'q8', device: 'cpu' }
+    { dtype: 'q8', device: 'wasm' }
   );
   console.log(`[Kokoro] Ready in ${((Date.now() - start) / 1000).toFixed(1)}s`);
 }
