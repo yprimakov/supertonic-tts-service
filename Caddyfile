@@ -1,0 +1,3 @@
+tts.yuryprimakov.com {
+    reverse_proxy tts:3100
+}

@@ -1,0 +1,27 @@
+services:
+  tts:
+    build: .
+    restart: unless-stopped
+    expose:
+      - "3100"
+    environment:
+      - PORT=3100
+      - TTS_API_SECRET=${TTS_API_SECRET}
+      - ALLOWED_ORIGINS=https://www.yuryprimakov.com,https://yuryprimakov.com
+    mem_limit: 1g
+    cpus: 1.0
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
